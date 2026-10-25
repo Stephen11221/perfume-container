@@ -17,6 +17,10 @@ npm run lint
 npm run build
 ```
 
+Store catalog filtering and cart calculations are kept in `src/store/store.js` and covered by unit tests alongside storefront interaction tests.
+
+GitHub Actions runs tests, lint, the production build, and a Docker image build for pushes and pull requests.
+
 ## Run with Docker
 
 ```sh
@@ -24,6 +28,8 @@ docker compose up --build
 ```
 
 The storefront is available at `http://localhost:8080`. Set `PORT` to change the host port, for example `PORT=3000 docker compose up --build`.
+
+The container exposes `/healthz` for health checks and emits JSON access logs to standard output. Inspect them with `docker compose logs -f storefront`.
 
 To build the image without Compose:
 

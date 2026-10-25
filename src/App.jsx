@@ -1,15 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { ArrowDown, ArrowLeft, ArrowRight, Check, Heart, Menu, Minus, Plus, Search, ShoppingBag, X } from 'lucide-react'
+import { addProductToCart, categories, filterProducts, getCartSummary, products, updateCartQuantity } from './store/store.js'
 import './App.css'
-
-const products = [
-  { id: 1, name: 'Santal 33', house: 'LE LABO', category: 'Woody', price: 235, size: '50 ml', image: 'photo-1594035910387-fea47794261f', note: 'Sandalwood · Cardamom · Leather', color: 'sand' },
-  { id: 2, name: 'Baccarat Rouge 540', house: 'MAISON FRANCIS KURKDJIAN', category: 'Amber', price: 325, size: '70 ml', image: 'photo-1592945403244-b3fbafd7f539', note: 'Saffron · Amberwood · Jasmine', color: 'rose' },
-  { id: 3, name: 'Another 13', house: 'LE LABO', category: 'Fresh', price: 235, size: '50 ml', image: 'photo-1595425970377-c9703cf48b6d', note: 'Pear · Musk · Ambrox', color: 'moss' },
-  { id: 4, name: 'Bal d’Afrique', house: 'BYREDO', category: 'Floral', price: 290, size: '50 ml', image: 'photo-1615634260167-c8cdede054de', note: 'Bergamot · African marigold · Vetiver', color: 'citrus' },
-]
-
-const categories = ['All scents', 'Woody', 'Amber', 'Fresh', 'Floral']
 
 function App() {
   const [activeCategory, setActiveCategory] = useState('All scents')
@@ -21,32 +13,17 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const visibleProducts = useMemo(
-    () => products.filter((product) => {
-      const matchesCategory = activeCategory === 'All scents' || product.category === activeCategory
-      const searchableText = `${product.name} ${product.house} ${product.category} ${product.note}`.toLowerCase()
-      return matchesCategory && searchableText.includes(searchTerm.trim().toLowerCase())
-    }),
-    [activeCategory, searchTerm],
-  )
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0)
-  const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  const visibleProducts = filterProducts(products, activeCategory, searchTerm)
+  const { count: cartCount, subtotal } = getCartSummary(cart)
 
   function addToCart(product) {
-    setCart((current) => {
-      const existing = current.find((item) => item.id === product.id)
-      return existing
-        ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-        : [...current, { ...product, quantity: 1 }]
-    })
+    setCart((current) => addProductToCart(current, product))
     setNotice(`${product.name} added to your bag`)
     window.setTimeout(() => setNotice(''), 2400)
   }
 
   function changeQuantity(id, amount) {
-    setCart((current) => current
-      .map((item) => item.id === id ? { ...item, quantity: item.quantity + amount } : item)
-      .filter((item) => item.quantity > 0))
+    setCart((current) => updateCartQuantity(current, id, amount))
   }
 
   return (
