@@ -1,0 +1,6 @@
+services:
+  storefront:
+    build: .
+    ports:
+      - "${PORT:-8080}:80"
+    restart: unless-stopped
